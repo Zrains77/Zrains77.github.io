@@ -5,303 +5,293 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaScript Apps Collection</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-title">JavaScript Apps</div>
-            <button class="hamburger" id="hamburger">
+            <button class="hamburger" id="hamburger" aria-label="Menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="#" onclick="showApp('multiplier')">Number Multiplier</a></li>
+                <li><a href="#" onclick="showApp('temperature')">Temperature Converter</a></li>
                 <li><a href="#" onclick="showApp('magic8ball')">Magic 8 Ball</a></li>
-                <li><a href="#" onclick="showApp('tasklist')">Task List</a></li>
+                <li><a href="#" onclick="showApp('wellness')">Wellness Tracker</a></li>
                 <li><a href="#" onclick="showApp('timer')">Timer</a></li>
                 <li><a href="#" onclick="showApp('nato')">NATO Converter</a></li>
-                <li><a href="#" onclick="showApp('calculator')">Calculator</a></li>
-                <li><a href="#" onclick="showApp('contacts')">Contacts</a></li>
+                <li><a href="#" onclick="showApp('calculator')">Scientific Calculator</a></li>
+                <li><a href="#" onclick="showApp('contacts')">Contacts Manager</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Number Multiplier App -->
-        <div id="multiplier-app" class="app-section active">
+        <!-- Temperature Converter -->
+        <div id="temperature-app" class="app-section active">
             <div class="container">
-                <h1>Number Multiplier</h1>
-                <div class="converter-section">
-                    <p>Enter a number and select an operation to multiply it.</p>
-                    
-                    <div class="input-group">
-                        <label for="inputNumber">Enter your number:</label>
-                        <input type="number" id="inputNumber" placeholder="Enter a number">
-                        <select id="operation" onchange="displaySelection()">
-                            <option value="double">double</option>
-                            <option value="triple">triple</option>
-                        </select>
-                    </div>
-                    
-                    <div id="selection-display" class="display-area">
-                        double
-                    </div>
-                    
-                    <div class="button-group">
-                        <button onclick="calculateResult()">Calculate</button>
-                        <button onclick="clearResult()" class="clear">Clear</button>
-                    </div>
-                    
-                    <div id="calculation-result" class="display-area result">
-                        <!-- Calculation result will be displayed here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Magic 8 Ball App -->
-        <div id="magic8ball-app" class="app-section">
-            <div class="container">
-                <h1>Magic 8 Ball</h1>
-                <input type="text" id="question" placeholder="Ask a question...">
-                <div class="ball" id="ball" onclick="shakeBall()">
-                    <div class="answer-window" id="answer">8</div>
-                </div>
-                <div class="button-group">
-                    <button id="shake-button" onclick="shakeBall()">Shake</button>
-                    <button id="reset-button" onclick="resetBall()">Reset</button>
-                </div>
-                <div id="question-display" class="question-display"></div>
-                <div id="history-container" class="history-container">
-                    <h2>Question History <button id="clear-history-button" onclick="clearHistory()">Clear History</button></h2>
-                    <ul id="question-history" class="question-history"></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Task List App -->
-        <div id="tasklist-app" class="app-section">
-            <div class="container">
-                <h1>Tasks For Today with Wellness Suggestions</h1>
-                
-                <div class="app-description">
-                    <p>This app helps you organize tasks that need to be completed today. Add your tasks with a priority number (1-5, where 1 is highest priority). Tasks will be automatically sorted by priority.</p>
-                    <p>Use the "Random Task" button for health and wellness suggestions to take care of yourself throughout your day!</p>
-                </div>
-                
-                <div class="input-container">
-                    <div class="input-group">
-                        <input type="text" id="task-input" placeholder="Enter a wellness task...">
-                        <select id="priority-input">
-                            <option value="1">Priority 1</option>
-                            <option value="2">Priority 2</option>
-                            <option value="3" selected>Priority 3</option>
-                            <option value="4">Priority 4</option>
-                            <option value="5">Priority 5</option>
-                        </select>
-                    </div>
-                    <div class="button-group">
-                        <button id="add-button" onclick="addTask()">Add Task</button>
-                        <button id="clear-input-button" onclick="clearInput()">Clear Input</button>
-                        <button id="random-task-button" onclick="addRandomTask()">Random Task</button>
-                    </div>
-                </div>
-                <div class="tasks-container">
-                    <h2>Your Tasks <button id="clear-tasks-button" onclick="clearTasks()">Clear All Tasks</button></h2>
-                    <ul id="task-list" class="task-list"></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Countdown Timer App -->
-        <div id="timer-app" class="app-section">
-            <div class="container">
-                <h1>Motivational Countdown Timer</h1>
-                
-                <div class="timer" id="timer">00:00</div>
-                
-                <div class="motivation" id="motivation">Enter seconds and start the timer for motivation!</div>
-                
-                <div class="controls">
-                    <input type="number" id="seconds" min="1" placeholder="Seconds" value="30">
-                    <div class="button-group">
-                        <button id="startBtn" onclick="startCountdown()">Start</button>
-                        <button id="resetBtn" onclick="resetTimer()">Reset</button>
-                    </div>
-                </div>
-                
-                <div class="timer-status" id="status"></div>
-            </div>
-        </div>
-
-        <!-- NATO Converter App -->
-        <div id="nato-app" class="app-section">
-            <div class="container">
-                <h1>NATO Phonetic Alphabet Converter</h1>
-                
-                <div class="app-description">
-                    <p>This converter helps you translate text into the NATO phonetic alphabet. Simply enter your text in the input field and click the "Convert" button to see the NATO phonetic equivalent.</p>
-                    <p>The NATO phonetic alphabet is used internationally to ensure clear communication, especially in radio transmissions and telecommunications.</p>
+                <h1><i class="fas fa-temperature-high"></i> Temperature Converter</h1>
+                <div class="input-group">
+                    <label for="tempValue">Temperature Value:</label>
+                    <input type="number" id="tempValue" placeholder="Enter temperature" step="0.01">
                 </div>
                 
                 <div class="input-group">
-                    <input type="text" id="inputString" placeholder="Enter text to convert">
+                    <label for="fromScale">From:</label>
+                    <select id="fromScale">
+                        <option value="celsius">Celsius (°C)</option>
+                        <option value="fahrenheit">Fahrenheit (°F)</option>
+                        <option value="kelvin">Kelvin (K)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="toScale">To:</label>
+                    <select id="toScale">
+                        <option value="fahrenheit">Fahrenheit (°F)</option>
+                        <option value="celsius">Celsius (°C)</option>
+                        <option value="kelvin">Kelvin (K)</option>
+                    </select>
                 </div>
                 
                 <div class="button-group">
-                    <button id="verbalize" onclick="verbalize()">Convert</button>
-                    <button id="clearNATO" onclick="clearNATOInputs()">Clear</button>
+                    <button onclick="convertTemperature()"><i class="fas fa-exchange-alt"></i> Convert</button>
+                    <button onclick="resetTemperature()" class="clear"><i class="fas fa-redo"></i> Reset</button>
                 </div>
                 
-                <div class="result-group">
-                    <h2>NATO Result:</h2>
-                    <div id="natoResult" class="display-area"></div>
+                <div id="tempResult" class="display-area result"></div>
+            </div>
+        </div>
+
+        <!-- Magic 8 Ball -->
+        <div id="magic8ball-app" class="app-section">
+            <div class="container">
+                <h1><i class="fas fa-magic"></i> Magic 8 Ball</h1>
+                <div class="input-group">
+                    <label for="8ball-question">Ask your question:</label>
+                    <input type="text" id="8ball-question" placeholder="Will I pass CS111?">
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="shakeBall()"><i class="fas fa-hand-sparkles"></i> Shake the Ball</button>
+                </div>
+                
+                <div id="8ball" class="ball">
+                    <div id="answer-window" class="answer-window">
+                        <div id="8ball-answer"></div>
+                    </div>
+                </div>
+                
+                <div class="history-container">
+                    <h3><i class="fas fa-history"></i> Recent Questions:</h3>
+                    <ul id="question-history"></ul>
                 </div>
             </div>
         </div>
 
-        <!-- Calculator App -->
+        <!-- Wellness Tracker -->
+        <div id="wellness-app" class="app-section">
+            <div class="container">
+                <h1><i class="fas fa-heartbeat"></i> Wellness Tracker</h1>
+                <div class="input-group">
+                    <label for="activity-input">Activity Name:</label>
+                    <input type="text" id="activity-input" placeholder="e.g., Morning Run">
+                </div>
+                
+                <div class="input-group">
+                    <label for="duration-input">Duration (minutes):</label>
+                    <input type="number" id="duration-input" placeholder="30" min="1">
+                </div>
+                
+                <div class="input-group">
+                    <label for="activity-type">Activity Type:</label>
+                    <select id="activity-type">
+                        <option value="exercise">Exercise</option>
+                        <option value="meditation">Meditation</option>
+                        <option value="reading">Reading</option>
+                        <option value="sleep">Sleep</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="addWellnessActivity()"><i class="fas fa-plus"></i> Add Activity</button>
+                </div>
+                
+                <h2><i class="fas fa-list-ul"></i> Your Activities</h2>
+                <div id="activities-list" class="activities-list"></div>
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div id="timer-app" class="app-section">
+            <div class="container">
+                <h1><i class="fas fa-stopwatch"></i> Timer</h1>
+                <div class="input-group">
+                    <label>Set Timer:</label>
+                    <div class="timer-inputs">
+                        <input type="number" id="timer-hours" placeholder="HH" min="0">
+                        <span>:</span>
+                        <input type="number" id="timer-minutes" placeholder="MM" min="0" max="59">
+                        <span>:</span>
+                        <input type="number" id="timer-seconds" placeholder="SS" min="0" max="59">
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="startCountdown()"><i class="fas fa-play"></i> Start</button>
+                    <button onclick="pauseTimer()"><i class="fas fa-pause"></i> Pause</button>
+                    <button onclick="resetTimer()" class="clear"><i class="fas fa-stop"></i> Reset</button>
+                </div>
+                
+                <div id="timer-display" class="timer">00:00:00</div>
+                <div id="timer-motivation" class="motivation"></div>
+                <audio id="timer-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"></audio>
+            </div>
+        </div>
+                <!-- NATO Converter -->
+        <div id="nato-app" class="app-section">
+            <div class="container">
+                <h1><i class="fas fa-language"></i> NATO Phonetic Alphabet Converter</h1>
+                <div class="input-group">
+                    <label for="nato-input">Enter text to convert:</label>
+                    <input type="text" id="nato-input" placeholder="e.g., Hello">
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="verbalize()"><i class="fas fa-volume-up"></i> Convert to NATO</button>
+                </div>
+                
+                <div id="nato-output" class="display-area"></div>
+            </div>
+        </div>
+
+        <!-- Scientific Calculator -->
         <div id="calculator-app" class="app-section">
             <div class="container">
-                <h1>Scientific Calculator</h1>
+                <h1><i class="fas fa-calculator"></i> Scientific Calculator</h1>
                 <div class="calculator">
                     <div class="calculator-display">
-                        <div id="history"></div>
-                        <input type="text" id="display" readonly>
+                        <div id="calc-history"></div>
+                        <input type="text" id="calc-display" readonly>
                     </div>
                     <div class="calculator-keys">
-                        <!-- First row -->
+                        <!-- Memory Functions -->
                         <div class="calculator-row">
-                            <button class="btn-function" onclick="clearMemory()">MC</button>
-                            <button class="btn-function" onclick="recallMemory()">MR</button>
-                            <button class="btn-function" onclick="addToMemory()">M+</button>
-                            <button class="btn-function" onclick="subtractFromMemory()">M-</button>
-                            <button class="btn-function" onclick="clearAll()">C</button>
+                            <button id="btn-mc" class="btn-function">MC</button>
+                            <button id="btn-mr" class="btn-function">MR</button>
+                            <button id="btn-ms" class="btn-function">MS</button>
+                            <button id="btn-m-plus" class="btn-function">M+</button>
+                            <button id="btn-m-minus" class="btn-function">M-</button>
                         </div>
-                        <!-- Second row -->
+                        
+                        <!-- Scientific Functions -->
                         <div class="calculator-row">
-                            <button class="btn-function" onclick="">x<sup>y</sup></button>
-                            <button class="btn-function" onclick="">√</button>
-                            <button class="btn-function" onclick="">|x|</button>
-                            <button class="btn-function" onclick="">π</button>
-                            <button class="btn-function" onclick="">e</button>
+                            <button id="btn-sin" class="btn-function">sin</button>
+                            <button id="btn-cos" class="btn-function">cos</button>
+                            <button id="btn-tan" class="btn-function">tan</button>
+                            <button id="btn-ln" class="btn-function">ln</button>
+                            <button id="btn-log" class="btn-function">log</button>
                         </div>
-                        <!-- Third row -->
+                        
+                        <!-- More Scientific Functions -->
                         <div class="calculator-row">
-                            <button class="btn-function" onclick="">sin</button>
-                            <button class="btn-function" onclick="">cos</button>
-                            <button class="btn-function" onclick="">tan</button>
-                            <button class="btn-function" onclick="">log</button>
-                            <button class="btn-function" onclick="">exp</button>
+                            <button id="btn-pi" class="btn-function">π</button>
+                            <button id="btn-e" class="btn-function">e</button>
+                            <button id="btn-pow" class="btn-operator">x^y</button>
+                            <button id="btn-sqrt" class="btn-function">√</button>
+                            <button id="btn-fact" class="btn-function">x!</button>
                         </div>
-                        <!-- Fourth row -->
+                        
+                        <!-- First Row -->
                         <div class="calculator-row">
-                            <button class="btn-function" onclick="">asin</button>
-                            <button class="btn-function" onclick="">acos</button>
-                            <button class="btn-function" onclick="">atan</button>
-                            <button class="btn-function" onclick="">ln2</button>
-                            <button class="btn-function" onclick="">ln10</button>
+                            <button id="btn-7" class="btn-number">7</button>
+                            <button id="btn-8" class="btn-number">8</button>
+                            <button id="btn-9" class="btn-number">9</button>
+                            <button id="btn-divide" class="btn-operator">/</button>
+                            <button id="btn-percent" class="btn-function">%</button>
                         </div>
-                        <!-- Fifth row -->
+                        
+                        <!-- Second Row -->
                         <div class="calculator-row">
-                            <button class="btn-number" onclick="appendToDisplay('7')">7</button>
-                            <button class="btn-number" onclick="appendToDisplay('8')">8</button>
-                            <button class="btn-number" onclick="appendToDisplay('9')">9</button>
-                            <button class="btn-operator" onclick="appendToDisplay('/')">/</button>
-                            <button class="btn-function" onclick="">round</button>
+                            <button id="btn-4" class="btn-number">4</button>
+                            <button id="btn-5" class="btn-number">5</button>
+                            <button id="btn-6" class="btn-number">6</button>
+                            <button id="btn-multiply" class="btn-operator">×</button>
+                            <button id="btn-reciprocal" class="btn-function">1/x</button>
                         </div>
-                        <!-- Sixth row -->
+                        
+                        <!-- Third Row -->
                         <div class="calculator-row">
-                            <button class="btn-number" onclick="appendToDisplay('4')">4</button>
-                            <button class="btn-number" onclick="appendToDisplay('5')">5</button>
-                            <button class="btn-number" onclick="appendToDisplay('6')">6</button>
-                            <button class="btn-operator" onclick="appendToDisplay('*')">×</button>
-                            <button class="btn-function" onclick="">ceil</button>
+                            <button id="btn-1" class="btn-number">1</button>
+                            <button id="btn-2" class="btn-number">2</button>
+                            <button id="btn-3" class="btn-number">3</button>
+                            <button id="btn-subtract" class="btn-operator">-</button>
+                            <button id="btn-equals" class="btn-equals">=</button>
                         </div>
-                        <!-- Seventh row -->
+                        
+                        <!-- Fourth Row -->
                         <div class="calculator-row">
-                            <button class="btn-number" onclick="appendToDisplay('1')">1</button>
-                            <button class="btn-number" onclick="appendToDisplay('2')">2</button>
-                            <button class="btn-number" onclick="appendToDisplay('3')">3</button>
-                            <button class="btn-operator" onclick="appendToDisplay('-')">-</button>
-                            <button class="btn-function" onclick="">floor</button>
-                        </div>
-                        <!-- Eighth row -->
-                        <div class="calculator-row">
-                            <button class="btn-number" onclick="appendToDisplay('0')">0</button>
-                            <button class="btn-number" onclick="appendToDisplay('.')">.</button>
-                            <button class="btn-equals" onclick="calculate()">=</button>
-                            <button class="btn-operator" onclick="appendToDisplay('+')">+</button>
-                            <button class="btn-function" onclick="deleteLast()">⌫</button>
+                            <button id="btn-0" class="btn-number">0</button>
+                            <button id="btn-decimal" class="btn-number">.</button>
+                            <button id="btn-plusminus" class="btn-function">±</button>
+                            <button id="btn-add" class="btn-operator">+</button>
+                            <button id="btn-clear" class="btn-function">C</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Contacts App -->
+        <!-- Contacts Manager -->
         <div id="contacts-app" class="app-section">
             <div class="container">
-                <h1>Contacts Management App</h1>
-                
+                <h1><i class="fas fa-address-book"></i> Contacts Manager</h1>
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('view')">View Contacts</div>
-                    <div class="tab" onclick="switchTab('add')">Add Contact</div>
-                    <div class="tab" onclick="switchTab('json')">JSON Data</div>
+                    <div class="tab active" onclick="switchTab('view')"><i class="fas fa-list"></i> View Contacts</div>
+                    <div class="tab" onclick="switchTab('add')"><i class="fas fa-user-plus"></i> Add Contact</div>
                 </div>
                 
                 <div id="view-contacts" class="tab-content active">
-                    <div class="search-container">
+                    <div class="input-group">
+                        <label for="search-input">Search:</label>
                         <input type="text" id="search-input" placeholder="Search contacts...">
-                        <div class="button-group">
-                            <button onclick="searchContacts()">Search</button>
-                            <button onclick="resetSearch()">Reset</button>
-                        </div>
                     </div>
-                    
-                    <div id="contacts-list" class="contacts-list">
-                        <!-- Contacts will be displayed here -->
-                    </div>
+                    <div id="contacts-list" class="contacts-list"></div>
                 </div>
                 
                 <div id="add-contact" class="tab-content">
-                    <h2>Add New Contact</h2>
-                    <form id="contact-form" onsubmit="return addContact()">
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" id="name" required>
+                    <form id="contact-form">
+                        <div class="input-group">
+                            <label for="contact-name">Full Name:</label>
+                            <input type="text" id="contact-name" required>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" required>
+                        <div class="input-group">
+                            <label for="contact-email">Email:</label>
+                            <input type="email" id="contact-email" required>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="phone">Phone:</label>
-                            <input type="tel" id="phone" required>
+                        <div class="input-group">
+                            <label for="contact-phone">Phone:</label>
+                            <input type="tel" id="contact-phone" placeholder="555-123-4567">
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="type">Contact Type:</label>
-                            <select id="type">
+                        <div class="input-group">
+                            <label for="contact-type">Type:</label>
+                            <select id="contact-type">
                                 <option value="personal">Personal</option>
                                 <option value="work">Work</option>
                                 <option value="family">Family</option>
-                                <option value="other">Other</option>
+                                <option value="friend">Friend</option>
                             </select>
                         </div>
-                        
-                        <button type="submit">Add Contact</button>
+                        <div class="button-group">
+                            <button type="submit"><i class="fas fa-save"></i> Save Contact</button>
+                            <button type="reset" class="clear"><i class="fas fa-trash"></i> Clear</button>
+                        </div>
                     </form>
-                </div>
-                
-                <div id="json-view" class="tab-content">
-                    <h2>JSON Data</h2>
-                    <div class="json-display" id="json-content"></div>
                 </div>
             </div>
         </div>
@@ -309,5 +299,4 @@
 
     <script src="apps.js"></script>
 </body>
-</html>
-                
+</html>       
