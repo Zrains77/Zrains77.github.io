@@ -1,705 +1,646 @@
-// Navigation Script
+/* 
+=====================================================================
+CS 111 LAB 9: MULTI-APP JAVASCRIPT PORTFOLIO
+=====================================================================
+*/
+
+// ==================== NAVIGATION SYSTEM ====================
+/*
+Teacher's Note: 
+The navigation system uses querySelectorAll to select multiple elements
+and classList methods to dynamically show/hide content. Key concepts:
+- querySelectorAll returns a NodeList (similar to an array)
+- classList.add/remove/toggle manipulate CSS classes
+- The hamburger menu uses event listeners for mobile responsiveness
+*/
+
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
-hamburger.addEventListener('click', function() {
+// Hamburger menu toggle functionality
+hamburger.addEventListener('click', () => {
+    // Toggle mobile menu visibility
     navMenu.classList.toggle('active');
+    // Animate hamburger icon
+    hamburger.classList.toggle('active');
 });
 
+/**
+ * Shows the selected application and hides others
+ * @param {string} appName - The ID prefix of the app to show
+ * 
+ * Teacher's Note:
+ * This function demonstrates three key concepts:
+ * 1. Using querySelectorAll to get all app sections
+ * 2. Using forEach to iterate through a NodeList
+ * 3. String concatenation to build dynamic IDs (appName + '-app')
+ */
 function showApp(appName) {
-    // Hide all app sections
-    const allSections = document.querySelectorAll('.app-section');
-    allSections.forEach(section => section.classList.remove('active'));
+    // Step 1: Hide all app sections
+    document.querySelectorAll('.app-section').forEach(section => {
+        section.classList.remove('active');
+    });
     
-    // Show selected app
-    document.getElementById(appName + '-app').classList.add('active');
+    // Step 2: Show the selected app
+    const activeApp = document.getElementById(`${appName}-app`);
+    if (activeApp) {
+        activeApp.classList.add('active');
+    }
     
-    // Close mobile menu
+    // Step 3: Close mobile menu if open
     navMenu.classList.remove('active');
-}
-
-// Number Multiplier Functions
-function displaySelection() {
-    const operation = document.getElementById("operation").value;
-    const selectionDisplay = document.getElementById("selection-display");
-    selectionDisplay.innerHTML = operation;
-}
-
-function calculateResult() {
-    const inputElement = document.getElementById("inputNumber");
-    const inputValue = parseFloat(inputElement.value);
-    const operationElement = document.getElementById("operation");
-    const operation = operationElement.value;
-    const resultElement = document.getElementById("calculation-result");
+    hamburger.classList.remove('active');
     
-    if (isNaN(inputValue)) {
-        resultElement.textContent = "Invalid input. Please enter a number.";
+    // Initialize app-specific functionality if needed
+    if (appName === 'contacts') initContacts();
+    if (appName === 'calculator') initCalculator();
+}
+
+// ==================== TEMPERATURE CONVERTER ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Form input handling
+- Mathematical calculations
+- DOM manipulation based on user input
+*/
+
+function convertTemperature() {
+    // Get user inputs
+    const tempValue = parseFloat(document.getElementById('tempValue').value);
+    const fromScale = document.getElementById('fromScale').value;
+    const toScale = document.getElementById('toScale').value;
+    const resultElement = document.getElementById('tempResult');
+
+    // Validate input
+    if (isNaN(tempValue)) {
+        resultElement.textContent = "Please enter a valid number";
         return;
     }
-    
-    let result;
-    let operationText;
-    
-    if (operation === "double") {
-        result = inputValue * 2;
-        operationText = "doubled";
-    } else if (operation === "triple") {
-        result = inputValue * 3;
-        operationText = "tripled";
+
+    // Convert to Celsius first (intermediate step)
+    let tempInCelsius;
+    switch(fromScale) {
+        case 'celsius': tempInCelsius = tempValue; break;
+        case 'fahrenheit': tempInCelsius = (tempValue - 32) * 5/9; break;
+        case 'kelvin': tempInCelsius = tempValue - 273.15; break;
     }
-    
-    resultElement.textContent = `${inputValue} ${operationText} = ${result.toFixed(2)}`;
+
+    // Convert from Celsius to target scale
+    let result;
+    switch(toScale) {
+        case 'celsius': result = tempInCelsius; break;
+        case 'fahrenheit': result = (tempInCelsius * 9/5) + 32; break;
+        case 'kelvin': result = tempInCelsius + 273.15; break;
+    }
+
+    // Display result with proper symbols
+    const symbols = { celsius: '°C', fahrenheit: '°F', kelvin: 'K' };
+    resultElement.textContent = `${tempValue.toFixed(2)}${symbols[fromScale]} = ${result.toFixed(2)}${symbols[toScale]}`;
 }
 
-function clearResult() {
-    document.getElementById("inputNumber").value = "";
-    document.getElementById("calculation-result").innerHTML = "";
+function resetTemperature() {
+    // Reset form and result display
+    document.getElementById('tempValue').value = '';
+    document.getElementById('fromScale').value = 'celsius';
+    document.getElementById('toScale').value = 'fahrenheit';
+    document.getElementById('tempResult').textContent = '';
 }
 
-// Magic 8 Ball Functions
+// ==================== MAGIC 8 BALL ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Array manipulation
+- Random selection
+- CSS class toggling for animations
+- History tracking
+*/
+
 const answers = [
-    "It is certain",
-    "It is decidedly so",
-    "Without a doubt",
-    "Yes definitely",
-    "You may rely on it",
-    "As I see it, yes",
-    "Most likely",
-    "Outlook good",
-    "Yes",
-    "Signs point to yes",
-    "Reply hazy, try again",
-    "Ask again later",
-    "Better not tell you now",
-    "Cannot predict now",
-    "Concentrate and ask again",
-    "Don't count on it",
-    "My reply is no",
-    "My sources say no",
-    "Outlook not so good",
-    "Very doubtful"
+    "It is certain", "It is decidedly so", "Without a doubt", "Yes definitely",
+    "You may rely on it", "As I see it, yes", "Most likely", "Outlook good",
+    "Yes", "Signs point to yes", "Reply hazy try again", "Ask again later",
+    "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
+    "Don't count on it", "My reply is no", "My sources say no",
+    "Outlook not so good", "Very doubtful"
 ];
 
-let historyItems = [];
-
-function getRandomAnswer() {
-    const randomIndex = Math.floor(Math.random() * answers.length);
-    return answers[randomIndex];
-}
+let questionHistory = [];
 
 function shakeBall() {
-    const question = document.getElementById('question').value.trim();
-    const ball = document.getElementById('ball');
-    const answerElement = document.getElementById('answer');
-    const questionDisplay = document.getElementById('question-display');
-    const questionInput = document.getElementById('question');
+    const questionInput = document.getElementById('8ball-question');
+    const answerDisplay = document.getElementById('8ball-answer');
+    const ball = document.getElementById('8ball');
     
-    if (question === '') {
-        alert('Please ask a question first!');
+    // Validate input
+    if (!questionInput.value.trim()) {
+        alert("Please ask a question first!");
         return;
     }
 
-    answerElement.textContent = '8';
-    
-    ball.style.transform = 'translateX(-5px)';
-    setTimeout(() => { ball.style.transform = 'translateX(5px)'; }, 100);
-    setTimeout(() => { ball.style.transform = 'translateX(-5px)'; }, 200);
-    setTimeout(() => { ball.style.transform = 'translateX(5px)'; }, 300);
-    setTimeout(() => { ball.style.transform = 'translateX(0)'; }, 400);
-    
+    // Add to history and update display
+    questionHistory.unshift(questionInput.value);
+    updateQuestionHistory();
+
+    // Animate ball and show answer after delay
+    ball.classList.add('shake');
     setTimeout(() => {
-        const randomAnswer = getRandomAnswer();
-        answerElement.textContent = randomAnswer;
-        questionDisplay.textContent = `"${question}"`;
-        questionDisplay.style.opacity = 1;
-        addToHistory(question);
-    }, 500);
-    
-    questionInput.value = '';
+        ball.classList.remove('shake');
+        const randomIndex = Math.floor(Math.random() * answers.length);
+        answerDisplay.textContent = answers[randomIndex];
+        document.getElementById('answer-window').style.display = 'block';
+    }, 1000);
 }
 
-function resetBall() {
-    document.getElementById('answer').textContent = '8';
-    document.getElementById('question-display').textContent = '';
-    document.getElementById('question-display').style.opacity = 0;
-    document.getElementById('question').value = '';
-}
-
-function addToHistory(question) {
-    historyItems.unshift(question);
-    updateHistoryDisplay();
-}
-
-function updateHistoryDisplay() {
-    const questionHistory = document.getElementById('question-history');
-    questionHistory.innerHTML = '';
-    
-    historyItems.forEach((question, index) => {
-        const listItem = document.createElement('li');
-        listItem.className = 'history-item';
-        listItem.textContent = question;
-        questionHistory.appendChild(listItem);
+function updateQuestionHistory() {
+    const historyList = document.getElementById('question-history');
+    historyList.innerHTML = '';
+    // Show last 5 questions
+    questionHistory.slice(0, 5).forEach(question => {
+        const li = document.createElement('li');
+        li.textContent = question;
+        li.className = 'history-item';
+        historyList.appendChild(li);
     });
 }
 
-function clearHistory() {
-    historyItems = [];
-    updateHistoryDisplay();
-}
+// ==================== WELLNESS TRACKER ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Object creation and array manipulation
+- Form validation
+- Dynamic DOM element creation
+- Local data management (no persistence)
+*/
 
-// Task List Functions
-let tasks = [];
+let wellnessActivities = [];
 
-const randomTasks = [
-    "Take a short walk",
-    "Drink a glass of water",
-    "Stretch for 5 minutes",
-    "Practice deep breathing for 2 minutes",
-    "Stand up and move around for 5 minutes",
-    "Do a quick meditation session",
-    "Write in a gratitude journal",
-    "Have a healthy snack",
-    "Rest your eyes for 2 minutes",
-    "Fix your posture",
-    "Do a quick workout",
-    "Call a friend or family member",
-    "Take a short nap",
-    "Listen to calming music",
-    "Drink a cup of tea",
-    "Practice mindfulness for 5 minutes",
-    "Step outside for fresh air",
-    "Do a quick stretching routine"
-];
-
-const taskInput = document.getElementById('task-input');
-const priorityInput = document.getElementById('priority-input');
-const taskList = document.getElementById('task-list');
-
-function addTask() {
-    const taskText = taskInput.value.trim();
-    const priority = priorityInput.value;
+function addWellnessActivity() {
+    const activityInput = document.getElementById('activity-input');
+    const durationInput = document.getElementById('duration-input');
+    const typeSelect = document.getElementById('activity-type');
     
-    if (taskText === '') {
-        alert('Please enter a task first!');
+    // Validate inputs
+    if (!activityInput.value.trim() || !durationInput.value) {
+        alert("Please fill in all fields");
         return;
     }
+
+    // Create new activity object
+    const newActivity = {
+        id: Date.now(), // Unique identifier
+        name: activityInput.value.trim(),
+        duration: parseInt(durationInput.value),
+        type: typeSelect.value,
+        date: new Date().toLocaleDateString()
+    };
+
+    // Add to array and update display
+    wellnessActivities.push(newActivity);
+    renderWellnessActivities();
     
-    const task = [taskText, priority];
-    tasks.push(task);
-    sortTasksByPriority();
-    updateTaskDisplay();
-    clearInput();
+    // Clear form
+    activityInput.value = '';
+    durationInput.value = '';
+    typeSelect.value = 'exercise';
 }
 
-function addRandomTask() {
-    const randomIndex = Math.floor(Math.random() * randomTasks.length);
-    const randomTask = randomTasks[randomIndex];
-    taskInput.value = randomTask;
-    priorityInput.focus();
-}
-
-function sortTasksByPriority() {
-    tasks.sort(function(a, b) {
-        return a[1] - b[1];
-    });
-}
-
-function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-        addTask();
-    }
-}
-
-taskInput.onkeydown = handleKeyPress;
-
-function clearInput() {
-    taskInput.value = '';
-    priorityInput.value = '3';
-    taskInput.focus();
-}
-
-function updateTaskDisplay() {
-    taskList.innerHTML = '';
+function renderWellnessActivities() {
+    const activitiesList = document.getElementById('activities-list');
     
-    for (let i = 0; i < tasks.length; i++) {
-        const task = tasks[i];
-        const taskText = task[0];
-        const priority = task[1];
-        
-        const listItem = document.createElement('li');
-        listItem.className = 'task-item';
-        
-        const taskDetails = document.createElement('div');
-        taskDetails.className = 'task-details';
-        
-        const taskTextElement = document.createElement('span');
-        taskTextElement.className = 'task-text';
-        taskTextElement.innerHTML = `<span class="priority-indicator priority-${priority}"></span>${taskText}`;
-        
-        const priorityText = document.createElement('span');
-        priorityText.className = 'priority-text';
-        priorityText.textContent = `Priority: ${priority}`;
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.className = 'delete-button';
-        deleteButton.setAttribute('onclick', `deleteTask(${i})`);
-        
-        taskDetails.appendChild(taskTextElement);
-        taskDetails.appendChild(priorityText);
-        
-        listItem.appendChild(taskDetails);
-        listItem.appendChild(deleteButton);
-        
-        taskList.appendChild(listItem);
-    }
+    // Display message if no activities, otherwise render list
+    activitiesList.innerHTML = wellnessActivities.length === 0 ? 
+        '<p>No activities logged yet</p>' :
+        wellnessActivities.map(activity => `
+            <div class="activity-item">
+                <h3>${activity.name}</h3>
+                <p>Duration: ${activity.duration} minutes</p>
+                <p>Type: ${activity.type}</p>
+                <p>Date: ${activity.date}</p>
+                <button onclick="deleteWellnessActivity(${activity.id})">Delete</button>
+            </div>
+        `).join('');
 }
 
-function deleteTask(index) {
-    tasks.splice(index, 1);
-    updateTaskDisplay();
+function deleteWellnessActivity(id) {
+    // Filter out the activity to delete
+    wellnessActivities = wellnessActivities.filter(activity => activity.id !== id);
+    renderWellnessActivities();
 }
 
-function clearTasks() {
-    if (confirm('Are you sure you want to clear all tasks?')) {
-        tasks = [];
-        updateTaskDisplay();
-    }
-}
+// ==================== TIMER ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- setInterval for timing functionality
+- Time calculations and formatting
+- Audio API for sound effects
+*/
 
-updateTaskDisplay();
-
-// Countdown Timer Functions
-let timerDisplay;
-let motivationDisplay;
-let secondsInput;
-let startBtn;
-let resetBtn;
-let statusDisplay;
-let countdown;
-let timeLeft;
-let phraseIndex = 0;
-
-const motivationalPhrases = [
-    "Every second counts!",
-    "You're making progress!",
-    "Keep going, you're doing great!",
-    "Stay focused, stay strong!",
-    "You've got this!",
-    "One step at a time!",
-    "Believe in yourself!",
-    "Success is just ahead!",
-    "Don't give up now!",
-    "The best is yet to come!",
-    "Each moment brings you closer to your goal!",
-    "Small steps lead to big results!",
-    "Your determination is inspiring!",
-    "Progress happens one second at a time!",
-    "Keep that momentum going!"
-];
-
-window.addEventListener('load', function() {
-    timerDisplay = document.getElementById('timer');
-    motivationDisplay = document.getElementById('motivation');
-    secondsInput = document.getElementById('seconds');
-    startBtn = document.getElementById('startBtn');
-    resetBtn = document.getElementById('resetBtn');
-    statusDisplay = document.getElementById('status');
-});
-
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(timeLeft);
-}
+let timerInterval;
+let timerSeconds = 0;
+let isTimerRunning = false;
 
 function startCountdown() {
-    const seconds = parseInt(secondsInput.value);
-
-    if (isNaN(seconds) || seconds <= 0) {
-        statusDisplay.textContent = "Please enter a valid number of seconds";
+    // Get user inputs
+    const hours = parseInt(document.getElementById('timer-hours').value) || 0;
+    const minutes = parseInt(document.getElementById('timer-minutes').value) || 0;
+    const seconds = parseInt(document.getElementById('timer-seconds').value) || 0;
+    
+    // Calculate total seconds
+    timerSeconds = hours * 3600 + minutes * 60 + seconds;
+    
+    // Validate input
+    if (timerSeconds <= 0) {
+        alert("Please enter a valid time");
         return;
     }
-    
-    startBtn.disabled = true;
-    secondsInput.disabled = true;
-    statusDisplay.textContent = "Countdown in progress...";
-    
-    timeLeft = seconds;
+
+    // Clear existing timer if running
+    if (isTimerRunning) clearInterval(timerInterval);
+
+    isTimerRunning = true;
     updateTimerDisplay();
     
-    countdown = setInterval(() => {
-        timeLeft--;
+    // Start countdown
+    timerInterval = setInterval(() => {
+        timerSeconds--;
         updateTimerDisplay();
         
-        if (timeLeft % 5 === 0 || timeLeft === seconds - 1) {
-            phraseIndex = (phraseIndex + 1) % motivationalPhrases.length;
-            motivationDisplay.textContent = motivationalPhrases[phraseIndex];
-        }
-        
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            timerDisplay.textContent = "00:00";
-            motivationDisplay.textContent = "🎉 Congratulations! You've completed the countdown!";
-            startBtn.disabled = false;
-            secondsInput.disabled = false;
-            statusDisplay.textContent = "Countdown complete!";
+        // Handle timer completion
+        if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('timer-sound').play();
+            document.getElementById('timer-motivation').textContent = "Time's up! Great job!";
         }
     }, 1000);
 }
 
+function updateTimerDisplay() {
+    // Convert seconds to HH:MM:SS format
+    const hours = Math.floor(timerSeconds / 3600);
+    const minutes = Math.floor((timerSeconds % 3600) / 60);
+    const seconds = timerSeconds % 60;
+    
+    // Update display with leading zeros
+    document.getElementById('timer-display').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
 function resetTimer() {
-    clearInterval(countdown);
-    timerDisplay.textContent = "00:00";
-    motivationDisplay.textContent = "Enter seconds and start the timer for motivation!";
-    startBtn.disabled = false;
-    secondsInput.disabled = false;
-    statusDisplay.textContent = "";
-    secondsInput.value = "30";
+    // Clear timer and reset display
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+    timerSeconds = 0;
+    document.getElementById('timer-display').textContent = "00:00:00";
+    document.getElementById('timer-hours').value = '';
+    document.getElementById('timer-minutes').value = '';
+    document.getElementById('timer-seconds').value = '';
+    document.getElementById('timer-motivation').textContent = '';
 }
 
-// NATO Converter Functions
-const natoLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-                        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
-
-const natoWords = ["Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
-                    "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
-                    "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray",
-                    "Yankee", "Zulu", "One", "Two", "Three", "Four", "Five", "Six", 
-                    "Seven", "Eight", "Nine", "Zero"];
-
-function chToNato(ch) {
-    const upperCh = ch.toUpperCase();
-    const index = natoLetters.indexOf(upperCh);
-    if (index !== -1) {
-        return natoWords[index];
-    }
-    return ch;
-}
-
-function wordToNato(word) {
-    const characters = word.split("");
-    const natoCharacters = characters.map(ch => chToNato(ch));
-    return natoCharacters.join(" ");
-}
-
-function sentenceToNato(sentence) {
-    const words = sentence.split(" ");
-    const natoWords = words.map(word => wordToNato(word));
-    return natoWords.join(" ");
-}
-
-function verbalize() {
-    const inputString = document.getElementById("inputString").value;
-    const natoResult = sentenceToNato(inputString);
-    document.getElementById("natoResult").textContent = natoResult;
-}
-
-function clearNATOInputs() {
-    document.getElementById("inputString").value = "";
-    document.getElementById("natoResult").textContent = "";
-}
-
-// Calculator Functions
-let memory = 0;
-let currentInput = "0";
-let currentOperator = null;
-let leftOperand = null;
-let waitingForRightOperand = false;
-let lastOperation = "";
-let calculationDone = false;
-
-const display = document.getElementById('display');
-const history = document.getElementById('history');
-
-display.value = "0";
-
-function evaluateExpression(expression) {
-    if (!isNaN(expression)) {
-        return parseFloat(expression);
-    }
-    
-    const tokens = [];
-    let currentNumber = '';
-    
-    for (let i = 0; i < expression.length; i++) {
-        const char = expression[i];
-        if (['+', '-', '*', '/'].includes(char)) {
-            if (currentNumber) {
-                tokens.push(parseFloat(currentNumber));
-                currentNumber = '';
-            }
-            tokens.push(char);
-        } else {
-            currentNumber += char;
-        }
-    }
-    
-    if (currentNumber) {
-        tokens.push(parseFloat(currentNumber));
-    }
-    
-    // Process multiplication and division
-    for (let i = 1; i < tokens.length; i += 2) {
-        if (tokens[i] === '*' || tokens[i] === '/') {
-            const left = tokens[i - 1];
-            const right = tokens[i + 1];
-            const result = tokens[i] === '*' ? left * right : left / right;
-            tokens[i - 1] = result;
-            tokens.splice(i, 2);
-            i -= 2;
-        }
-    }
-    
-    // Process addition and subtraction
-    let result = tokens[0];
-    for (let i = 1; i < tokens.length; i += 2) {
-        const operator = tokens[i];
-        const operand = tokens[i + 1];
-        if (operator === '+') {
-            result += operand;
-        } else if (operator === '-') {
-            result -= operand;
-        }
-    }
-    
-    return result;
-}
-
-function appendToDisplay(value) {
-    if (calculationDone && !isNaN(value)) {
-        clearDisplay();
-        calculationDone = false;
-    } else if (calculationDone) {
-        calculationDone = false;
-    }
-    
-    if (waitingForRightOperand) {
-        display.value = value;
-        waitingForRightOperand = false;
-    } else {
-        if (display.value === "0" && value !== ".") {
-            display.value = value;
-        } else {
-            display.value += value;
-        }
-    }
-    
-    currentInput = display.value;
-}
-
-function clearDisplay() {
-    display.value = "0";
-    currentInput = "0";
-}
-
-function clearAll() {
-    clearDisplay();
-    history.textContent = "";
-    leftOperand = null;
-    currentOperator = null;
-    waitingForRightOperand = false;
-    lastOperation = "";
-}
-
-function clearMemory() {
-    memory = 0;
-}
-
-function recallMemory() {
-    display.value = memory;
-    currentInput = display.value;
-}
-
-function addToMemory() {
-    try {
-        const result = evaluateExpression(display.value);
-        const number = parseFloat(result);
-        memory += number;
-    } catch (e) {
-        display.value = "Error";
+function pauseTimer() {
+    // Pause timer if running
+    if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
     }
 }
+// ==================== NATO CONVERTER ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Object lookup tables
+- String manipulation
+- Character-by-character processing
+*/
 
-function subtractFromMemory() {
-    try {
-        const result = evaluateExpression(display.value);
-        const number = parseFloat(result);
-        memory -= number;
-    } catch (e) {
-        display.value = "Error";
-    }
-}
-
-function deleteLast() {
-    if (display.value.length > 1) {
-        display.value = display.value.slice(0, -1);
-    } else {
-        display.value = "0";
-    }
-    currentInput = display.value;
-}
-
-function calculate() {
-    try {
-        if (currentOperator === "pow" && leftOperand !== null) {
-            const rightOperand = parseFloat(display.value);
-            history.textContent = `${leftOperand}^${rightOperand}`;
-            display.value = Math.pow(leftOperand, rightOperand);
-            leftOperand = null;
-            currentOperator = null;
-        } else {
-            history.textContent = display.value;
-            display.value = evaluateExpression(display.value);
-        }
-        calculationDone = true;
-    } catch (e) {
-        display.value = "Error";
-    }
-}
-
-// Contacts App Functions
-let contactsData = {
-    "contacts": [
-        {
-            "id": 1,
-            "name": "John Doe",
-            "email": "john@example.com",
-            "phone": "555-123-4567",
-            "type": "personal"
-        },
-        {
-            "id": 2,
-            "name": "Jane Smith",
-            "email": "jane@company.com",
-            "phone": "555-987-6543",
-            "type": "work"
-        },
-        {
-            "id": 3,
-            "name": "Bob Johnson",
-            "email": "bob@family.net",
-            "phone": "555-555-5555",
-            "type": "family"
-        }
-    ]
+const natoAlphabet = {
+    'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
+    'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
+    'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
+    'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
+    'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray', 'Y': 'Yankee',
+    'Z': 'Zulu', '0': 'Zero', '1': 'One', '2': 'Two', '3': 'Three',
+    '4': 'Four', '5': 'Five', '6': 'Six', '7': 'Seven', '8': 'Eight',
+    '9': 'Nine', ' ': '(Space)'
 };
 
-function displayContacts(contacts = contactsData.contacts) {
+function verbalize() {
+    const inputText = document.getElementById('nato-input').value.toUpperCase();
+    let output = '';
+    
+    // Process each character
+    for (let char of inputText) {
+        if (natoAlphabet[char]) {
+            output += natoAlphabet[char] + ' ';
+        } else if (char === ' ') {
+            output += '(Space) ';
+        } else {
+            output += `[${char}] `; // Handle unsupported characters
+        }
+    }
+    
+    // Display result
+    document.getElementById('nato-output').textContent = output.trim();
+}
+
+// ==================== SCIENTIFIC CALCULATOR ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Object-oriented approach
+- Complex mathematical operations
+- Event delegation pattern
+- Memory functions
+*/
+
+let calculator = {
+    currentInput: '0',
+    previousInput: null,
+    operation: null,
+    memory: 0,
+    
+    reset: function() {
+        this.currentInput = '0';
+        this.previousInput = null;
+        this.operation = null;
+        updateCalculatorDisplay();
+    },
+    
+    calculate: function() {
+        let result;
+        const prev = parseFloat(this.previousInput);
+        const current = parseFloat(this.currentInput);
+        
+        if (isNaN(prev) || isNaN(current)) return;
+        
+        switch (this.operation) {
+            case '+': result = prev + current; break;
+            case '-': result = prev - current; break;
+            case '×': result = prev * current; break;
+            case '÷': result = prev / current; break;
+            case 'x^y': result = Math.pow(prev, current); break;
+            default: return;
+        }
+        
+        this.currentInput = result.toString();
+        this.operation = null;
+        this.previousInput = null;
+        updateCalculatorDisplay();
+    }
+};
+
+// Initialize calculator event listeners
+function initCalculator() {
+    updateCalculatorDisplay();
+    
+    // Number buttons (0-9)
+    for (let i = 0; i <= 9; i++) {
+        document.getElementById(`btn-${i}`).addEventListener('click', () => {
+            appendNumber(i);
+        });
+    }
+    
+    // Operation buttons
+    document.getElementById('btn-add').addEventListener('click', () => setOperation('+'));
+    document.getElementById('btn-subtract').addEventListener('click', () => setOperation('-'));
+    document.getElementById('btn-multiply').addEventListener('click', () => setOperation('×'));
+    document.getElementById('btn-divide').addEventListener('click', () => setOperation('÷'));
+    document.getElementById('btn-equals').addEventListener('click', () => calculator.calculate());
+    document.getElementById('btn-clear').addEventListener('click', () => calculator.reset());
+    document.getElementById('btn-decimal').addEventListener('click', () => appendDecimal());
+    document.getElementById('btn-plusminus').addEventListener('click', () => toggleSign());
+    document.getElementById('btn-percent').addEventListener('click', () => applyPercentage());
+    document.getElementById('btn-sqrt').addEventListener('click', () => squareRoot());
+    document.getElementById('btn-pow').addEventListener('click', () => setOperation('x^y'));
+    document.getElementById('btn-fact').addEventListener('click', () => factorial());
+    document.getElementById('btn-sin').addEventListener('click', () => trigonometricFunction('sin'));
+    document.getElementById('btn-cos').addEventListener('click', () => trigonometricFunction('cos'));
+    document.getElementById('btn-tan').addEventListener('click', () => trigonometricFunction('tan'));
+    document.getElementById('btn-ln').addEventListener('click', () => naturalLog());
+    document.getElementById('btn-log').addEventListener('click', () => log10());
+    document.getElementById('btn-pi').addEventListener('click', () => appendPi());
+    document.getElementById('btn-e').addEventListener('click', () => appendE());
+    document.getElementById('btn-reciprocal').addEventListener('click', () => reciprocal());
+    
+    // Memory functions
+    document.getElementById('btn-mc').addEventListener('click', () => memoryClear());
+    document.getElementById('btn-mr').addEventListener('click', () => memoryRecall());
+    document.getElementById('btn-ms').addEventListener('click', () => memoryStore());
+    document.getElementById('btn-m-plus').addEventListener('click', () => memoryAdd());
+    document.getElementById('btn-m-minus').addEventListener('click', () => memorySubtract());
+}
+
+// Helper functions for calculator
+function updateCalculatorDisplay() {
+    document.getElementById('calc-display').value = calculator.currentInput;
+    document.getElementById('calc-history').textContent = 
+        calculator.previousInput ? `${calculator.previousInput} ${calculator.operation || ''}` : '';
+}
+
+function appendNumber(number) {
+    if (calculator.currentInput === '0') {
+        calculator.currentInput = number.toString();
+    } else {
+        calculator.currentInput += number.toString();
+    }
+    updateCalculatorDisplay();
+}
+
+function appendDecimal() {
+    if (!calculator.currentInput.includes('.')) {
+        calculator.currentInput += '.';
+        updateCalculatorDisplay();
+    }
+}
+
+function setOperation(op) {
+    if (calculator.currentInput === '0') return;
+    
+    if (calculator.operation !== null) {
+        calculator.calculate();
+    }
+    
+    calculator.previousInput = calculator.currentInput;
+    calculator.operation = op;
+    calculator.currentInput = '0';
+    updateCalculatorDisplay();
+}
+
+// Additional calculator functions would go here (toggleSign, applyPercentage, etc.)
+
+// ==================== CONTACTS MANAGER ====================
+/*
+Teacher's Note:
+This app demonstrates:
+- Tabbed interface
+- Form handling
+- Basic CRUD operations
+- Data validation
+*/
+
+let contacts = [];
+
+function initContacts() {
+    // Load sample contacts if empty
+    if (contacts.length === 0) {
+        contacts = [
+            { id: 1, name: "John Doe", email: "john@example.com", phone: "555-1234", type: "work" },
+            { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "555-5678", type: "personal" }
+        ];
+    }
+    
+    // Set up event listeners
+    document.getElementById('contact-form').addEventListener('submit', saveContact);
+    document.getElementById('search-input').addEventListener('input', searchContacts);
+    
+    // Initial render
+    renderContacts();
+}
+
+function switchTab(tabId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activate selected tab
+    document.getElementById(`${tabId}-contacts`).classList.add('active');
+    document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+}
+
+function saveContact(e) {
+    e.preventDefault();
+    
+    // Get form values
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const phone = document.getElementById('contact-phone').value.trim();
+    const type = document.getElementById('contact-type').value;
+    
+    // Validate required fields
+    if (!name || !email) {
+        alert("Name and email are required");
+        return;
+    }
+    
+    // Create or update contact
+    const contactId = document.getElementById('contact-id')?.value;
+    if (contactId) {
+        // Update existing contact
+        const index = contacts.findIndex(c => c.id == contactId);
+        if (index !== -1) {
+            contacts[index] = { id: contactId, name, email, phone, type };
+        }
+    } else {
+        // Add new contact
+        const newContact = {
+            id: Date.now(),
+            name,
+            email,
+            phone,
+            type
+        };
+        contacts.push(newContact);
+    }
+    
+    // Reset form and update display
+    e.target.reset();
+    renderContacts();
+    switchTab('view');
+}
+
+function renderContacts() {
     const contactsList = document.getElementById('contacts-list');
     contactsList.innerHTML = '';
     
     if (contacts.length === 0) {
-        contactsList.innerHTML = '<p>No contacts found.</p>';
+        contactsList.innerHTML = '<p>No contacts found</p>';
         return;
     }
     
     contacts.forEach(contact => {
-        const div = document.createElement('div');
-        div.className = 'contact-card';
-        div.innerHTML = `
+        const contactCard = document.createElement('div');
+        contactCard.className = 'contact-card';
+        contactCard.innerHTML = `
             <h3>${contact.name}</h3>
             <p>Email: ${contact.email}</p>
-            <p>Phone: ${contact.phone}</p>
-            <p>Type: ${contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}</p>
+            ${contact.phone ? `<p>Phone: ${contact.phone}</p>` : ''}
+            <p>Type: ${contact.type}</p>
+            <div class="button-group">
+                <button onclick="editContact(${contact.id})">Edit</button>
+                <button onclick="deleteContact(${contact.id})" class="delete-button">Delete</button>
+            </div>
         `;
-        contactsList.appendChild(div);
+        contactsList.appendChild(contactCard);
     });
-}
-
-function updateJSONDisplay() {
-    const jsonContent = document.getElementById('json-content');
-    jsonContent.textContent = JSON.stringify(contactsData, null, 4);
 }
 
 function searchContacts() {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filtered = contacts.filter(contact => 
+        contact.name.toLowerCase().includes(searchTerm) || 
+        contact.email.toLowerCase().includes(searchTerm) ||
+        (contact.phone && contact.phone.includes(searchTerm))
+    );
     
-    if (!searchTerm) {
-        displayContacts();
-        return;
-    }
+    const contactsList = document.getElementById('contacts-list');
+    contactsList.innerHTML = '';
     
-    const filteredContacts = contactsData.contacts.filter(contact => {
-        return contact.name.toLowerCase().includes(searchTerm) ||
-                contact.email.toLowerCase().includes(searchTerm) ||
-                contact.phone.includes(searchTerm) ||
-                contact.type.toLowerCase().includes(searchTerm);
+    filtered.forEach(contact => {
+        const contactCard = document.createElement('div');
+        contactCard.className = 'contact-card';
+        contactCard.innerHTML = `
+            <h3>${contact.name}</h3>
+            <p>Email: ${contact.email}</p>
+            ${contact.phone ? `<p>Phone: ${contact.phone}</p>` : ''}
+            <p>Type: ${contact.type}</p>
+        `;
+        contactsList.appendChild(contactCard);
     });
-    
-    displayContacts(filteredContacts);
 }
 
-function addContact() {
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const type = document.getElementById('type').value;
+function editContact(id) {
+    const contact = contacts.find(c => c.id === id);
+    if (!contact) return;
     
-    let newId;
-    if (contactsData.contacts.length > 0) {
-        const maxId = Math.max(...contactsData.contacts.map(function(c) { 
-            return c.id; 
-        }));
-        newId = maxId + 1;
+    // Fill form with contact data
+    document.getElementById('contact-name').value = contact.name;
+    document.getElementById('contact-email').value = contact.email;
+    document.getElementById('contact-phone').value = contact.phone || '';
+    document.getElementById('contact-type').value = contact.type;
+    
+    // Add hidden ID field if not exists
+    if (!document.getElementById('contact-id')) {
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.id = 'contact-id';
+        idInput.value = id;
+        document.getElementById('contact-form').appendChild(idInput);
     } else {
-        newId = 1;
+        document.getElementById('contact-id').value = id;
     }
     
-    const newContact = {
-        id: newId,
-        name,
-        email,
-        phone,
-        type
-    };
-    
-    contactsData.contacts.push(newContact);
-    document.getElementById('contact-form').reset();
-    displayContacts();
-    updateJSONDisplay();
-    alert('Contact added successfully!');
-    switchTab('view');
-    
-    return false;
+    switchTab('add');
 }
 
-function resetSearch() {
-    document.getElementById('search-input').value = '';
-    displayContacts();
-}
-
-function switchTab(tabId) {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        if (tab.textContent.toLowerCase().includes(tabId)) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
-    
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-        if (content.id === `${tabId}-contacts` || content.id === `${tabId}-contact` || content.id === `${tabId}-view`) {
-            content.classList.add('active');
-        } else {
-            content.classList.remove('active');
-        }
-    });
-    
-    if (tabId === 'json') {
-        updateJSONDisplay();
+function deleteContact(id) {
+    if (confirm("Are you sure you want to delete this contact?")) {
+        contacts = contacts.filter(contact => contact.id !== id);
+        renderContacts();
     }
 }
 
-// Initialize contacts on load
-window.addEventListener('load', function() {
-    displayContacts();
-    updateJSONDisplay();
+// Initialize the first app when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    showApp('temperature');
 });
