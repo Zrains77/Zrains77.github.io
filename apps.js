@@ -1,646 +1,431 @@
-/* 
-=====================================================================
-CS 111 LAB 9: MULTI-APP JAVASCRIPT PORTFOLIO
-=====================================================================
-*/
-
-// ==================== NAVIGATION SYSTEM ====================
-/*
-Teacher's Note: 
-The navigation system uses querySelectorAll to select multiple elements
-and classList methods to dynamically show/hide content. Key concepts:
-- querySelectorAll returns a NodeList (similar to an array)
-- classList.add/remove/toggle manipulate CSS classes
-- The hamburger menu uses event listeners for mobile responsiveness
-*/
-
+// Navigation Script
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
 // Hamburger menu toggle functionality
-hamburger.addEventListener('click', () => {
-    // Toggle mobile menu visibility
+hamburger.addEventListener('click', function() {
     navMenu.classList.toggle('active');
-    // Animate hamburger icon
-    hamburger.classList.toggle('active');
 });
 
-/**
- * Shows the selected application and hides others
- * @param {string} appName - The ID prefix of the app to show
- * 
- * Teacher's Note:
- * This function demonstrates three key concepts:
- * 1. Using querySelectorAll to get all app sections
- * 2. Using forEach to iterate through a NodeList
- * 3. String concatenation to build dynamic IDs (appName + '-app')
- */
+// Function to show/hide app sections
 function showApp(appName) {
-    // Step 1: Hide all app sections
-    document.querySelectorAll('.app-section').forEach(section => {
-        section.classList.remove('active');
-    });
+    // Hide all app sections
+    const allSections = document.querySelectorAll('.app-section');
+    allSections.forEach(section => section.classList.remove('active'));
     
-    // Step 2: Show the selected app
-    const activeApp = document.getElementById(`${appName}-app`);
-    if (activeApp) {
-        activeApp.classList.add('active');
-    }
+    // Show selected app
+    document.getElementById(appName + '-app').classList.add('active');
     
-    // Step 3: Close mobile menu if open
+    // Close mobile menu
     navMenu.classList.remove('active');
-    hamburger.classList.remove('active');
-    
-    // Initialize app-specific functionality if needed
-    if (appName === 'contacts') initContacts();
-    if (appName === 'calculator') initCalculator();
 }
 
-// ==================== TEMPERATURE CONVERTER ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Form input handling
-- Mathematical calculations
-- DOM manipulation based on user input
-*/
-
+// Project 1: Temperature Converter Functions
 function convertTemperature() {
-    // Get user inputs
-    const tempValue = parseFloat(document.getElementById('tempValue').value);
-    const fromScale = document.getElementById('fromScale').value;
-    const toScale = document.getElementById('toScale').value;
-    const resultElement = document.getElementById('tempResult');
-
-    // Validate input
-    if (isNaN(tempValue)) {
+    const inputTemp = parseFloat(document.getElementById('inputTemp').value);
+    const fromUnit = document.getElementById('fromUnit').value;
+    const toUnit = document.getElementById('toUnit').value;
+    const resultElement = document.getElementById('conversionResult');
+    
+    if (isNaN(inputTemp)) {
         resultElement.textContent = "Please enter a valid number";
         return;
     }
 
-    // Convert to Celsius first (intermediate step)
-    let tempInCelsius;
-    switch(fromScale) {
-        case 'celsius': tempInCelsius = tempValue; break;
-        case 'fahrenheit': tempInCelsius = (tempValue - 32) * 5/9; break;
-        case 'kelvin': tempInCelsius = tempValue - 273.15; break;
-    }
-
-    // Convert from Celsius to target scale
     let result;
-    switch(toScale) {
-        case 'celsius': result = tempInCelsius; break;
-        case 'fahrenheit': result = (tempInCelsius * 9/5) + 32; break;
-        case 'kelvin': result = tempInCelsius + 273.15; break;
+    let formula = "";
+    
+    // Conversion formulas
+    if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
+        result = (inputTemp * 9/5) + 32;
+        formula = `(${inputTemp} × 9/5) + 32`;
+    } else if (fromUnit === 'fahrenheit' && toUnit === 'celsius') {
+        result = (inputTemp - 32) * 5/9;
+        formula = `(${inputTemp} - 32) × 5/9`;
+    } else if (fromUnit === 'celsius' && toUnit === 'kelvin') {
+        result = inputTemp + 273.15;
+        formula = `${inputTemp} + 273.15`;
+    } else if (fromUnit === 'kelvin' && toUnit === 'celsius') {
+        result = inputTemp - 273.15;
+        formula = `${inputTemp} - 273.15`;
+    } else if (fromUnit === 'fahrenheit' && toUnit === 'kelvin') {
+        result = (inputTemp - 32) * 5/9 + 273.15;
+        formula = `(${inputTemp} - 32) × 5/9 + 273.15`;
+    } else if (fromUnit === 'kelvin' && toUnit === 'fahrenheit') {
+        result = (inputTemp - 273.15) * 9/5 + 32;
+        formula = `(${inputTemp} - 273.15) × 9/5 + 32`;
+    } else {
+        result = inputTemp; // Same unit conversion
     }
 
-    // Display result with proper symbols
-    const symbols = { celsius: '°C', fahrenheit: '°F', kelvin: 'K' };
-    resultElement.textContent = `${tempValue.toFixed(2)}${symbols[fromScale]} = ${result.toFixed(2)}${symbols[toScale]}`;
+    resultElement.innerHTML = `${inputTemp}° ${fromUnit.charAt(0).toUpperCase()} = ${result.toFixed(2)}° ${toUnit.charAt(0).toUpperCase()}<br><small>Formula: ${formula || 'No conversion needed'}</small>`;
 }
 
-function resetTemperature() {
-    // Reset form and result display
-    document.getElementById('tempValue').value = '';
-    document.getElementById('fromScale').value = 'celsius';
-    document.getElementById('toScale').value = 'fahrenheit';
-    document.getElementById('tempResult').textContent = '';
+function clearTemperature() {
+    document.getElementById('inputTemp').value = '';
+    document.getElementById('conversionResult').textContent = '';
 }
 
-// ==================== MAGIC 8 BALL ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Array manipulation
-- Random selection
-- CSS class toggling for animations
-- History tracking
-*/
+// Project 2: Expense Tracker Functions
+let expenses = [];
+let totalExpense = 0;
 
-const answers = [
-    "It is certain", "It is decidedly so", "Without a doubt", "Yes definitely",
-    "You may rely on it", "As I see it, yes", "Most likely", "Outlook good",
-    "Yes", "Signs point to yes", "Reply hazy try again", "Ask again later",
-    "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
-    "Don't count on it", "My reply is no", "My sources say no",
-    "Outlook not so good", "Very doubtful"
-];
-
-let questionHistory = [];
-
-function shakeBall() {
-    const questionInput = document.getElementById('8ball-question');
-    const answerDisplay = document.getElementById('8ball-answer');
-    const ball = document.getElementById('8ball');
+function addExpense() {
+    const description = document.getElementById('expenseDescription').value.trim();
+    const amount = parseFloat(document.getElementById('expenseAmount').value);
+    const category = document.getElementById('expenseCategory').value;
+    const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
     
-    // Validate input
-    if (!questionInput.value.trim()) {
-        alert("Please ask a question first!");
+    if (!description || isNaN(amount)) {
+        alert('Please enter valid description and amount');
         return;
     }
 
-    // Add to history and update display
-    questionHistory.unshift(questionInput.value);
-    updateQuestionHistory();
-
-    // Animate ball and show answer after delay
-    ball.classList.add('shake');
-    setTimeout(() => {
-        ball.classList.remove('shake');
-        const randomIndex = Math.floor(Math.random() * answers.length);
-        answerDisplay.textContent = answers[randomIndex];
-        document.getElementById('answer-window').style.display = 'block';
-    }, 1000);
-}
-
-function updateQuestionHistory() {
-    const historyList = document.getElementById('question-history');
-    historyList.innerHTML = '';
-    // Show last 5 questions
-    questionHistory.slice(0, 5).forEach(question => {
-        const li = document.createElement('li');
-        li.textContent = question;
-        li.className = 'history-item';
-        historyList.appendChild(li);
-    });
-}
-
-// ==================== WELLNESS TRACKER ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Object creation and array manipulation
-- Form validation
-- Dynamic DOM element creation
-- Local data management (no persistence)
-*/
-
-let wellnessActivities = [];
-
-function addWellnessActivity() {
-    const activityInput = document.getElementById('activity-input');
-    const durationInput = document.getElementById('duration-input');
-    const typeSelect = document.getElementById('activity-type');
-    
-    // Validate inputs
-    if (!activityInput.value.trim() || !durationInput.value) {
-        alert("Please fill in all fields");
-        return;
-    }
-
-    // Create new activity object
-    const newActivity = {
-        id: Date.now(), // Unique identifier
-        name: activityInput.value.trim(),
-        duration: parseInt(durationInput.value),
-        type: typeSelect.value,
-        date: new Date().toLocaleDateString()
+    const expense = {
+        id: Date.now(),
+        description,
+        amount,
+        category,
+        date
     };
 
-    // Add to array and update display
-    wellnessActivities.push(newActivity);
-    renderWellnessActivities();
-    
-    // Clear form
-    activityInput.value = '';
-    durationInput.value = '';
-    typeSelect.value = 'exercise';
+    expenses.push(expense);
+    totalExpense += amount;
+    updateExpenseList();
+    updateSummary();
+    clearExpenseForm();
 }
 
-function renderWellnessActivities() {
-    const activitiesList = document.getElementById('activities-list');
+function updateExpenseList() {
+    const expenseList = document.getElementById('expenseList');
+    expenseList.innerHTML = '';
     
-    // Display message if no activities, otherwise render list
-    activitiesList.innerHTML = wellnessActivities.length === 0 ? 
-        '<p>No activities logged yet</p>' :
-        wellnessActivities.map(activity => `
-            <div class="activity-item">
-                <h3>${activity.name}</h3>
-                <p>Duration: ${activity.duration} minutes</p>
-                <p>Type: ${activity.type}</p>
-                <p>Date: ${activity.date}</p>
-                <button onclick="deleteWellnessActivity(${activity.id})">Delete</button>
-            </div>
-        `).join('');
-}
-
-function deleteWellnessActivity(id) {
-    // Filter out the activity to delete
-    wellnessActivities = wellnessActivities.filter(activity => activity.id !== id);
-    renderWellnessActivities();
-}
-
-// ==================== TIMER ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- setInterval for timing functionality
-- Time calculations and formatting
-- Audio API for sound effects
-*/
-
-let timerInterval;
-let timerSeconds = 0;
-let isTimerRunning = false;
-
-function startCountdown() {
-    // Get user inputs
-    const hours = parseInt(document.getElementById('timer-hours').value) || 0;
-    const minutes = parseInt(document.getElementById('timer-minutes').value) || 0;
-    const seconds = parseInt(document.getElementById('timer-seconds').value) || 0;
-    
-    // Calculate total seconds
-    timerSeconds = hours * 3600 + minutes * 60 + seconds;
-    
-    // Validate input
-    if (timerSeconds <= 0) {
-        alert("Please enter a valid time");
-        return;
-    }
-
-    // Clear existing timer if running
-    if (isTimerRunning) clearInterval(timerInterval);
-
-    isTimerRunning = true;
-    updateTimerDisplay();
-    
-    // Start countdown
-    timerInterval = setInterval(() => {
-        timerSeconds--;
-        updateTimerDisplay();
-        
-        // Handle timer completion
-        if (timerSeconds <= 0) {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            document.getElementById('timer-sound').play();
-            document.getElementById('timer-motivation').textContent = "Time's up! Great job!";
-        }
-    }, 1000);
-}
-
-function updateTimerDisplay() {
-    // Convert seconds to HH:MM:SS format
-    const hours = Math.floor(timerSeconds / 3600);
-    const minutes = Math.floor((timerSeconds % 3600) / 60);
-    const seconds = timerSeconds % 60;
-    
-    // Update display with leading zeros
-    document.getElementById('timer-display').textContent = 
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function resetTimer() {
-    // Clear timer and reset display
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-    timerSeconds = 0;
-    document.getElementById('timer-display').textContent = "00:00:00";
-    document.getElementById('timer-hours').value = '';
-    document.getElementById('timer-minutes').value = '';
-    document.getElementById('timer-seconds').value = '';
-    document.getElementById('timer-motivation').textContent = '';
-}
-
-function pauseTimer() {
-    // Pause timer if running
-    if (isTimerRunning) {
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-    }
-}
-// ==================== NATO CONVERTER ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Object lookup tables
-- String manipulation
-- Character-by-character processing
-*/
-
-const natoAlphabet = {
-    'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
-    'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
-    'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
-    'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
-    'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray', 'Y': 'Yankee',
-    'Z': 'Zulu', '0': 'Zero', '1': 'One', '2': 'Two', '3': 'Three',
-    '4': 'Four', '5': 'Five', '6': 'Six', '7': 'Seven', '8': 'Eight',
-    '9': 'Nine', ' ': '(Space)'
-};
-
-function verbalize() {
-    const inputText = document.getElementById('nato-input').value.toUpperCase();
-    let output = '';
-    
-    // Process each character
-    for (let char of inputText) {
-        if (natoAlphabet[char]) {
-            output += natoAlphabet[char] + ' ';
-        } else if (char === ' ') {
-            output += '(Space) ';
-        } else {
-            output += `[${char}] `; // Handle unsupported characters
-        }
-    }
-    
-    // Display result
-    document.getElementById('nato-output').textContent = output.trim();
-}
-
-// ==================== SCIENTIFIC CALCULATOR ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Object-oriented approach
-- Complex mathematical operations
-- Event delegation pattern
-- Memory functions
-*/
-
-let calculator = {
-    currentInput: '0',
-    previousInput: null,
-    operation: null,
-    memory: 0,
-    
-    reset: function() {
-        this.currentInput = '0';
-        this.previousInput = null;
-        this.operation = null;
-        updateCalculatorDisplay();
-    },
-    
-    calculate: function() {
-        let result;
-        const prev = parseFloat(this.previousInput);
-        const current = parseFloat(this.currentInput);
-        
-        if (isNaN(prev) || isNaN(current)) return;
-        
-        switch (this.operation) {
-            case '+': result = prev + current; break;
-            case '-': result = prev - current; break;
-            case '×': result = prev * current; break;
-            case '÷': result = prev / current; break;
-            case 'x^y': result = Math.pow(prev, current); break;
-            default: return;
-        }
-        
-        this.currentInput = result.toString();
-        this.operation = null;
-        this.previousInput = null;
-        updateCalculatorDisplay();
-    }
-};
-
-// Initialize calculator event listeners
-function initCalculator() {
-    updateCalculatorDisplay();
-    
-    // Number buttons (0-9)
-    for (let i = 0; i <= 9; i++) {
-        document.getElementById(`btn-${i}`).addEventListener('click', () => {
-            appendNumber(i);
-        });
-    }
-    
-    // Operation buttons
-    document.getElementById('btn-add').addEventListener('click', () => setOperation('+'));
-    document.getElementById('btn-subtract').addEventListener('click', () => setOperation('-'));
-    document.getElementById('btn-multiply').addEventListener('click', () => setOperation('×'));
-    document.getElementById('btn-divide').addEventListener('click', () => setOperation('÷'));
-    document.getElementById('btn-equals').addEventListener('click', () => calculator.calculate());
-    document.getElementById('btn-clear').addEventListener('click', () => calculator.reset());
-    document.getElementById('btn-decimal').addEventListener('click', () => appendDecimal());
-    document.getElementById('btn-plusminus').addEventListener('click', () => toggleSign());
-    document.getElementById('btn-percent').addEventListener('click', () => applyPercentage());
-    document.getElementById('btn-sqrt').addEventListener('click', () => squareRoot());
-    document.getElementById('btn-pow').addEventListener('click', () => setOperation('x^y'));
-    document.getElementById('btn-fact').addEventListener('click', () => factorial());
-    document.getElementById('btn-sin').addEventListener('click', () => trigonometricFunction('sin'));
-    document.getElementById('btn-cos').addEventListener('click', () => trigonometricFunction('cos'));
-    document.getElementById('btn-tan').addEventListener('click', () => trigonometricFunction('tan'));
-    document.getElementById('btn-ln').addEventListener('click', () => naturalLog());
-    document.getElementById('btn-log').addEventListener('click', () => log10());
-    document.getElementById('btn-pi').addEventListener('click', () => appendPi());
-    document.getElementById('btn-e').addEventListener('click', () => appendE());
-    document.getElementById('btn-reciprocal').addEventListener('click', () => reciprocal());
-    
-    // Memory functions
-    document.getElementById('btn-mc').addEventListener('click', () => memoryClear());
-    document.getElementById('btn-mr').addEventListener('click', () => memoryRecall());
-    document.getElementById('btn-ms').addEventListener('click', () => memoryStore());
-    document.getElementById('btn-m-plus').addEventListener('click', () => memoryAdd());
-    document.getElementById('btn-m-minus').addEventListener('click', () => memorySubtract());
-}
-
-// Helper functions for calculator
-function updateCalculatorDisplay() {
-    document.getElementById('calc-display').value = calculator.currentInput;
-    document.getElementById('calc-history').textContent = 
-        calculator.previousInput ? `${calculator.previousInput} ${calculator.operation || ''}` : '';
-}
-
-function appendNumber(number) {
-    if (calculator.currentInput === '0') {
-        calculator.currentInput = number.toString();
-    } else {
-        calculator.currentInput += number.toString();
-    }
-    updateCalculatorDisplay();
-}
-
-function appendDecimal() {
-    if (!calculator.currentInput.includes('.')) {
-        calculator.currentInput += '.';
-        updateCalculatorDisplay();
-    }
-}
-
-function setOperation(op) {
-    if (calculator.currentInput === '0') return;
-    
-    if (calculator.operation !== null) {
-        calculator.calculate();
-    }
-    
-    calculator.previousInput = calculator.currentInput;
-    calculator.operation = op;
-    calculator.currentInput = '0';
-    updateCalculatorDisplay();
-}
-
-// Additional calculator functions would go here (toggleSign, applyPercentage, etc.)
-
-// ==================== CONTACTS MANAGER ====================
-/*
-Teacher's Note:
-This app demonstrates:
-- Tabbed interface
-- Form handling
-- Basic CRUD operations
-- Data validation
-*/
-
-let contacts = [];
-
-function initContacts() {
-    // Load sample contacts if empty
-    if (contacts.length === 0) {
-        contacts = [
-            { id: 1, name: "John Doe", email: "john@example.com", phone: "555-1234", type: "work" },
-            { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "555-5678", type: "personal" }
-        ];
-    }
-    
-    // Set up event listeners
-    document.getElementById('contact-form').addEventListener('submit', saveContact);
-    document.getElementById('search-input').addEventListener('input', searchContacts);
-    
-    // Initial render
-    renderContacts();
-}
-
-function switchTab(tabId) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Deactivate all tabs
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Activate selected tab
-    document.getElementById(`${tabId}-contacts`).classList.add('active');
-    document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
-}
-
-function saveContact(e) {
-    e.preventDefault();
-    
-    // Get form values
-    const name = document.getElementById('contact-name').value.trim();
-    const email = document.getElementById('contact-email').value.trim();
-    const phone = document.getElementById('contact-phone').value.trim();
-    const type = document.getElementById('contact-type').value;
-    
-    // Validate required fields
-    if (!name || !email) {
-        alert("Name and email are required");
-        return;
-    }
-    
-    // Create or update contact
-    const contactId = document.getElementById('contact-id')?.value;
-    if (contactId) {
-        // Update existing contact
-        const index = contacts.findIndex(c => c.id == contactId);
-        if (index !== -1) {
-            contacts[index] = { id: contactId, name, email, phone, type };
-        }
-    } else {
-        // Add new contact
-        const newContact = {
-            id: Date.now(),
-            name,
-            email,
-            phone,
-            type
-        };
-        contacts.push(newContact);
-    }
-    
-    // Reset form and update display
-    e.target.reset();
-    renderContacts();
-    switchTab('view');
-}
-
-function renderContacts() {
-    const contactsList = document.getElementById('contacts-list');
-    contactsList.innerHTML = '';
-    
-    if (contacts.length === 0) {
-        contactsList.innerHTML = '<p>No contacts found</p>';
-        return;
-    }
-    
-    contacts.forEach(contact => {
-        const contactCard = document.createElement('div');
-        contactCard.className = 'contact-card';
-        contactCard.innerHTML = `
-            <h3>${contact.name}</h3>
-            <p>Email: ${contact.email}</p>
-            ${contact.phone ? `<p>Phone: ${contact.phone}</p>` : ''}
-            <p>Type: ${contact.type}</p>
-            <div class="button-group">
-                <button onclick="editContact(${contact.id})">Edit</button>
-                <button onclick="deleteContact(${contact.id})" class="delete-button">Delete</button>
-            </div>
+    expenses.forEach(expense => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${expense.description}</td>
+            <td>$${expense.amount.toFixed(2)}</td>
+            <td>${expense.category}</td>
+            <td>${expense.date}</td>
+            <td><button onclick="deleteExpense(${expense.id})" class="delete-button">Delete</button></td>
         `;
-        contactsList.appendChild(contactCard);
+        expenseList.appendChild(row);
     });
 }
 
-function searchContacts() {
-    const searchTerm = document.getElementById('search-input').value.toLowerCase();
-    const filtered = contacts.filter(contact => 
-        contact.name.toLowerCase().includes(searchTerm) || 
-        contact.email.toLowerCase().includes(searchTerm) ||
-        (contact.phone && contact.phone.includes(searchTerm))
-    );
+function deleteExpense(id) {
+    const expenseIndex = expenses.findIndex(exp => exp.id === id);
+    if (expenseIndex > -1) {
+        totalExpense -= expenses[expenseIndex].amount;
+        expenses.splice(expenseIndex, 1);
+        updateExpenseList();
+        updateSummary();
+    }
+}
+
+function updateSummary() {
+    document.getElementById('totalExpenses').textContent = totalExpense.toFixed(2);
+    document.getElementById('expenseCount').textContent = expenses.length;
+}
+
+function clearExpenseForm() {
+    document.getElementById('expenseDescription').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseCategory').value = 'food';
+    document.getElementById('expenseDate').value = '';
+}
+
+function filterExpenses() {
+    const categoryFilter = document.getElementById('filterCategory').value;
+    const filtered = categoryFilter === 'all' 
+        ? expenses 
+        : expenses.filter(exp => exp.category === categoryFilter);
     
-    const contactsList = document.getElementById('contacts-list');
-    contactsList.innerHTML = '';
+    const expenseList = document.getElementById('expenseList');
+    expenseList.innerHTML = '';
     
-    filtered.forEach(contact => {
-        const contactCard = document.createElement('div');
-        contactCard.className = 'contact-card';
-        contactCard.innerHTML = `
-            <h3>${contact.name}</h3>
-            <p>Email: ${contact.email}</p>
-            ${contact.phone ? `<p>Phone: ${contact.phone}</p>` : ''}
-            <p>Type: ${contact.type}</p>
+    filtered.forEach(expense => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${expense.description}</td>
+            <td>$${expense.amount.toFixed(2)}</td>
+            <td>${expense.category}</td>
+            <td>${expense.date}</td>
+            <td><button onclick="deleteExpense(${expense.id})" class="delete-button">Delete</button></td>
         `;
-        contactsList.appendChild(contactCard);
+        expenseList.appendChild(row);
     });
 }
 
-function editContact(id) {
-    const contact = contacts.find(c => c.id === id);
-    if (!contact) return;
-    
-    // Fill form with contact data
-    document.getElementById('contact-name').value = contact.name;
-    document.getElementById('contact-email').value = contact.email;
-    document.getElementById('contact-phone').value = contact.phone || '';
-    document.getElementById('contact-type').value = contact.type;
-    
-    // Add hidden ID field if not exists
-    if (!document.getElementById('contact-id')) {
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.id = 'contact-id';
-        idInput.value = id;
-        document.getElementById('contact-form').appendChild(idInput);
+// Project 3: Scientific Calculator Functions - Part 1
+let memory = 0;
+let currentInput = "0";
+let lastOperation = "";
+
+const display = document.getElementById('display');
+const history = document.getElementById('history');
+
+function appendToDisplay(value) {
+    if (currentInput === "0" && value !== ".") {
+        currentInput = value;
     } else {
-        document.getElementById('contact-id').value = id;
+        currentInput += value;
     }
+    display.value = currentInput;
+}
+
+function clearDisplay() {
+    currentInput = "0";
+    display.value = currentInput;
+    history.textContent = "";
+}
+
+function clearAll() {
+    clearDisplay();
+    memory = 0;
+}
+
+function deleteLast() {
+    if (currentInput.length > 1) {
+        currentInput = currentInput.slice(0, -1);
+    } else {
+        currentInput = "0";
+    }
+    display.value = currentInput;
+}
+
+function calculate() {
+    try {
+        const result = eval(currentInput);
+        history.textContent = currentInput;
+        display.value = result;
+        currentInput = result.toString();
+        lastOperation = "";
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+function calculateSquareRoot() {
+    try {
+        const result = Math.sqrt(eval(currentInput));
+        history.textContent = `√(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculatePower() {
+    try {
+        history.textContent = `pow(${currentInput},`;
+        lastOperation = "pow";
+        currentInput = "0";
+        display.value = currentInput;
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateSin() {
+    try {
+        const result = Math.sin(eval(currentInput));
+        history.textContent = `sin(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateCos() {
+    try {
+        const result = Math.cos(eval(currentInput));
+        history.textContent = `cos(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateTan() {
+    try {
+        const result = Math.tan(eval(currentInput));
+        history.textContent = `tan(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateLog() {
+    try {
+        const result = Math.log10(eval(currentInput));
+        history.textContent = `log(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateLn() {
+    try {
+        const result = Math.log(eval(currentInput));
+        history.textContent = `ln(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateAbsolute() {
+    try {
+        const result = Math.abs(eval(currentInput));
+        history.textContent = `abs(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateRound() {
+    try {
+        const result = Math.round(eval(currentInput));
+        history.textContent = `round(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateFloor() {
+    try {
+        const result = Math.floor(eval(currentInput));
+        history.textContent = `floor(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateCeil() {
+    try {
+        const result = Math.ceil(eval(currentInput));
+        history.textContent = `ceil(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function addToMemory() {
+    memory += parseFloat(display.value);
+}
+
+function subtractFromMemory() {
+    memory -= parseFloat(display.value);
+}
+
+function recallMemory() {
+    display.value = memory;
+    currentInput = memory.toString();
+}
+
+function clearMemory() {
+    memory = 0;
+}
+
+function insertPi() {
+    if (currentInput === "0") {
+        currentInput = Math.PI.toString();
+    } else {
+        currentInput += Math.PI.toString();
+    }
+    display.value = currentInput;
+}
+
+function insertE() {
+    if (currentInput === "0") {
+        currentInput = Math.E.toString();
+    } else {
+        currentInput += Math.E.toString();
+    }
+    display.value = currentInput;
+}
+
+function calculateFactorial() {
+    try {
+        let num = parseInt(eval(currentInput));
+        if (num < 0) {
+            display.value = "Error";
+            currentInput = "0";
+            return;
+        }
+        let result = 1;
+        for (let i = 2; i <= num; i++) {
+            result *= i;
+        }
+        history.textContent = `${num}!`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculatePercentage() {
+    try {
+        const result = eval(currentInput) / 100;
+        history.textContent = `${currentInput}%`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+function calculateReciprocal() {
+    try {
+        const result = 1 / eval(currentInput);
+        history.textContent = `1/(${currentInput})`;
+        display.value = result;
+        currentInput = result.toString();
+    } catch (e) {
+        display.value = "Error";
+        currentInput = "0";
+    }
+}
+
+// Initialize apps
+window.addEventListener('load', function() {
+    display.value = "0";
+    updateSummary();
     
-    switchTab('add');
-}
-
-function deleteContact(id) {
-    if (confirm("Are you sure you want to delete this contact?")) {
-        contacts = contacts.filter(contact => contact.id !== id);
-        renderContacts();
-    }
-}
-
-// Initialize the first app when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    showApp('temperature');
+    // Set default date to today in expense tracker
+    document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+    
+    // Initialize temperature converter display
+    document.getElementById('conversionResult').textContent = '';
 });
